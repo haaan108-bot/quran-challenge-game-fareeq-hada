@@ -1,0 +1,446 @@
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي ص 8 - سورة البقرة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --emerald: #065f46;
+            --gold: #d4af37;
+            --soft-gold: #fcf6ba;
+            --bg-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quran-font {
+            font-family: 'Amiri', serif;
+            font-size: 1.5rem;
+            line-height: 2.2;
+        }
+
+        .islamic-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .card-container {
+            perspective: 1000px;
+        }
+
+        .word-card {
+            background: white;
+            border: 2px solid var(--soft-gold);
+            border-radius: 12px;
+            padding: 10px 20px;
+            margin: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            user-select: none;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--emerald);
+        }
+
+        .word-card:active {
+            transform: scale(0.95);
+        }
+
+        .drop-zone {
+            min-height: 120px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px dashed var(--gold);
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .success-animation {
+            animation: celebrate 0.5s ease;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); filter: brightness(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .floating-star {
+            position: absolute;
+            color: var(--gold);
+            pointer-events: none;
+            animation: floatUp 1s forwards;
+        }
+
+        @keyframes floatUp {
+            to { transform: translateY(-100px); opacity: 0; }
+        }
+
+        .moon {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+            color: var(--soft-gold);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .hidden { display: none !important; }
+
+        .progress-bar {
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gold);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Character */
+        .character {
+            width: 120px;
+            height: auto;
+            margin: 0 auto;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Success Modal */
+        #success-modal {
+            background: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 25px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            border: 5px solid var(--gold);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div class="islamic-pattern"></div>
+<div class="moon">🌙</div>
+
+<!-- Start Screen -->
+<div id="start-screen" class="flex-grow flex flex-col items-center justify-center relative z-10 p-6 text-center">
+    <div class="character">
+        <!-- Placeholder for Character SVG -->
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="40" r="30" fill="#fce7f3" />
+            <rect x="35" y="70" width="30" height="30" rx="10" fill="#065f46" />
+            <path d="M40 35 Q50 45 60 35" stroke="#333" stroke-width="2" fill="none" />
+            <circle cx="40" cy="30" r="3" fill="#333" />
+            <circle cx="60" cy="30" r="3" fill="#333" />
+            <rect x="40" y="75" width="20" height="15" rx="2" fill="#d4af37" />
+        </svg>
+    </div>
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4 mt-4 drop-shadow-lg">تحدي ص 8 - سورة البقرة</h1>
+    <p class="text-lg text-emerald-100 mb-8">رتب الآيات الكريمة لتصبح حافظاً متميزاً!</p>
+    
+    <button id="start-btn" class="bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-emerald-900 font-bold py-4 px-12 rounded-full text-2xl shadow-xl transform transition hover:scale-110 active:scale-95">
+        ابدأ التحدي
+    </button>
+
+    <div class="mt-12 grid grid-cols-3 gap-4 text-white">
+        <div class="bg-black/20 p-3 rounded-xl backdrop-blur">
+            <div class="text-2xl font-bold">⭐ <span id="total-stars-start">0</span></div>
+            <div class="text-xs">النجوم</div>
+        </div>
+        <div class="bg-black/20 p-3 rounded-xl backdrop-blur">
+            <div class="text-2xl font-bold">🏆 <span id="high-score-start">0</span></div>
+            <div class="text-xs">أفضل نتيجة</div>
+        </div>
+        <div class="bg-black/20 p-3 rounded-xl backdrop-blur">
+            <div class="text-2xl font-bold">📖 8</div>
+            <div class="text-xs">الصفحة</div>
+        </div>
+    </div>
+</div>
+
+<!-- Game Screen -->
+<div id="game-screen" class="hidden flex-grow flex flex-col p-4 relative z-10 max-w-4xl mx-auto w-full">
+    <!-- Header Stats -->
+    <div class="flex justify-between items-center text-white mb-4">
+        <div class="flex items-center gap-2">
+            <span class="bg-yellow-500 text-emerald-900 px-3 py-1 rounded-full font-bold">⭐ <span id="current-score">0</span></span>
+        </div>
+        <div class="flex flex-col items-center flex-grow mx-4">
+            <span class="text-sm font-bold mb-1">التقدم في الحفظ</span>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+        </div>
+        <div class="bg-black/30 px-3 py-1 rounded-full font-bold">
+            ⏱️ <span id="timer">00:00</span>
+        </div>
+    </div>
+
+    <!-- Verse Question -->
+    <div id="verse-container" class="bg-white/95 rounded-3xl p-6 shadow-2xl mb-6 relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-2 text-emerald-100/20 text-5xl">۞</div>
+        <h2 class="text-center text-emerald-800 font-bold mb-4 opacity-70">رتب الكلمات التالية لتكمل الآية:</h2>
+        
+        <div id="target-zone" class="drop-zone quran-font">
+            <!-- Correct words will appear here -->
+        </div>
+
+        <div id="source-zone" class="flex flex-wrap justify-center gap-2 min-h-[100px]">
+            <!-- Jumbled words cards will be here -->
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex justify-center gap-4">
+        <button id="reset-verse" class="bg-white/20 text-white px-6 py-2 rounded-xl hover:bg-white/30">إعادة الترتيب</button>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="success-modal" class="hidden">
+    <div class="modal-content">
+        <div class="text-6xl mb-4">✨</div>
+        <h2 class="text-3xl font-bold text-emerald-800 mb-2">أحسنت يا بطل!</h2>
+        <p class="text-gray-600 mb-6" id="modal-msg">لقد اجتزت التحدي بنجاح!</p>
+        <div class="bg-emerald-50 rounded-2xl p-4 mb-6">
+            <div class="text-sm text-emerald-600">النقاط التي حصلت عليها</div>
+            <div class="text-4xl font-bold text-emerald-900" id="final-score">0</div>
+        </div>
+        <button id="next-level-btn" class="bg-emerald-600 text-white font-bold py-3 px-10 rounded-full text-xl hover:bg-emerald-700 w-full mb-3">المستوى التالي</button>
+        <button id="restart-game" class="text-emerald-600 font-bold hover:underline">العودة للرئيسية</button>
+    </div>
+</div>
+
+<script>
+    const verses = [
+        "وَإِذْ نَجَّيْنَاكُم مِّنْ آلِ فِرْعَوْنَ يَسُومُونَكُمْ سُوءَ الْعَذَابِ يُذَبِّحُونَ أَبْنَاءَكُمْ وَيَسْتَحْيُونَ نِسَاءَكُمْ ۚ وَفِي ذَٰلِكُم بَلَاءٌ مِّن رَّبِّكُمْ عَظِيمٌ",
+        "وَإِذْ فَرَقْنَا بِكُمُ الْبَحْرَ فَأَنجَيْنَاكُمْ وَأَغْرَقْنَا آلَ فِرْعَوْنَ وَأَنتُمْ تَنظُرُونَ",
+        "وَإِذْ وَاعَدْنَا مُوسَىٰ أربعينَ لَيْلَةً ثُمَّ اتَّخَذْتُمُ الْعِجْلَ مِن بَعْدِهِ وَأَنتُمْ ظَالِمُونَ",
+        "ثُمَّ عَفَوْنَا عَنكُم مِّن بَعْدِ ذَٰلِكَ لَعَلَّكُمْ تَشْكُرُونَ",
+        "وَإِذْ آتَيْنَا مُوسَى الْكِتَابَ وَالْفُرْقَانَ لَعَلَّكُمْ تَهْتَدُونَ",
+        "وَإِذْ قَالَ مُوسَىٰ لِقَوْمِهِ يَا قَوْمِ إِنَّكُمْ ظَلَمْتُمْ أَنفُسَكُم بِاتِّخَاذِكُمُ الْعِجْلَ فَتُوبُوا إِلَىٰ بَارِئِكُمْ فَاقْتُلُوا أَنفُسَكُمْ ذَٰلِكُمْ خَيْرٌ لَّكُمْ عِندَ بَارِئِكُمْ فَتَابَ عَلَيْكُمْ ۚ إِنَّهُ هُوَ التَّوَّابُ الرَّحِيمُ",
+        "وَإِذْ قُلْتُمْ يَا مُوسَىٰ لَن نُّؤْمِنَ لَكَ حَتَّىٰ نَرَى اللَّهَ جَهْرَةً فَأَخَذَتْكُمُ الصَّاعِقَةُ وَأَنتُمْ تَنظُرُونَ",
+        "ثُمَّ ببعثْنَاكُم مِّن بَعْدِ مَوْتِكُمْ لَعَلَّكُمْ تَشْكُرُونَ",
+        "وَظَلَّلْنَا عَلَيْكُمُ الْغَمَامَ وَأَنزَلْنَا عَلَيْكُمُ الْمَنَّ وَالسَّلْوَىٰ ۖ كُلُوا مِن طَيِّبَاتِ مَا رَزَقْنَاكُمْ ۖ وَمَا ظَلَمُونَا وَلَٰكِن كَانُوا أَنفُسَهُمْ يَظْلِمُونَ"
+    ];
+
+    let currentVerseIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let seconds = 0;
+    let placedWords = [];
+    let currentVerseWords = [];
+
+    const startScreen = document.getElementById('start-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const sourceZone = document.getElementById('source-zone');
+    const targetZone = document.getElementById('target-zone');
+    const successModal = document.getElementById('success-modal');
+    const scoreDisplay = document.getElementById('current-score');
+    const progressFill = document.getElementById('progress-fill');
+    const timerDisplay = document.getElementById('timer');
+
+    // Init
+    document.getElementById('start-btn').addEventListener('click', startGame);
+    document.getElementById('reset-verse').addEventListener('click', resetVerse);
+    document.getElementById('next-level-btn').addEventListener('click', loadNextVerse);
+    document.getElementById('restart-game').addEventListener('click', () => location.reload());
+
+    function startGame() {
+        startScreen.classList.add('hidden');
+        gameScreen.classList.remove('hidden');
+        currentVerseIndex = 0;
+        score = 0;
+        loadVerse(currentVerseIndex);
+        startTimer();
+    }
+
+    function loadVerse(index) {
+        if (index >= verses.length) {
+            showFinalSuccess();
+            return;
+        }
+
+        const fullVerse = verses[index];
+        // Split by spaces and keep symbols
+        currentVerseWords = fullVerse.split(' ').filter(w => w.trim() !== "");
+        placedWords = [];
+        
+        // Update progress
+        progressFill.style.width = `${(index / verses.length) * 100}%`;
+        
+        // Jumble words
+        const jumbled = [...currentVerseWords].sort(() => Math.random() - 0.5);
+        
+        renderVerse(jumbled);
+    }
+
+    function renderVerse(words) {
+        sourceZone.innerHTML = '';
+        targetZone.innerHTML = '';
+        
+        words.forEach((word, idx) => {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            card.innerText = word;
+            card.onclick = () => handleWordClick(word, card);
+            sourceZone.appendChild(card);
+        });
+    }
+
+    function handleWordClick(word, cardElement) {
+        const expectedWord = currentVerseWords[placedWords.length];
+        
+        if (word === expectedWord) {
+            // Success
+            placedWords.push(word);
+            cardElement.style.opacity = '0';
+            cardElement.style.pointerEvents = 'none';
+            
+            const targetCard = document.createElement('div');
+            targetCard.className = 'word-card success-animation';
+            targetCard.innerText = word;
+            targetCard.style.borderColor = 'var(--gold)';
+            targetZone.appendChild(targetCard);
+            
+            score += 10;
+            updateScore();
+            createStar(cardElement);
+
+            // Check if verse finished
+            if (placedWords.length === currentVerseWords.length) {
+                setTimeout(() => {
+                    showSuccessModal();
+                }, 500);
+            }
+        } else {
+            // Failure animation
+            cardElement.classList.add('animate-bounce');
+            cardElement.style.borderColor = 'red';
+            setTimeout(() => {
+                cardElement.classList.remove('animate-bounce');
+                cardElement.style.borderColor = 'var(--soft-gold)';
+            }, 500);
+        }
+    }
+
+    function updateScore() {
+        scoreDisplay.innerText = score;
+    }
+
+    function startTimer() {
+        seconds = 0;
+        timerInterval = setInterval(() => {
+            seconds++;
+            const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const secs = (seconds % 60).toString().padStart(2, '0');
+            timerDisplay.innerText = `${mins}:${secs}`;
+        }, 1000);
+    }
+
+    function resetVerse() {
+        loadVerse(currentVerseIndex);
+    }
+
+    function showSuccessModal() {
+        successModal.classList.remove('hidden');
+        document.getElementById('final-score').innerText = score;
+        if (currentVerseIndex === verses.length - 1) {
+            document.getElementById('next-level-btn').innerText = "تم ختم الصفحة! مبارك";
+            document.getElementById('modal-msg').innerText = "يا لك من بطل! لقد أتممت ترتيب جميع آيات الصفحة 8 من سورة البقرة بنجاح.";
+        }
+    }
+
+    function loadNextVerse() {
+        successModal.classList.add('hidden');
+        currentVerseIndex++;
+        loadVerse(currentVerseIndex);
+    }
+
+    function showFinalSuccess() {
+        clearInterval(timerInterval);
+        // Show fireworks or special effect
+        successModal.classList.remove('hidden');
+        document.getElementById('next-level-btn').classList.add('hidden');
+    }
+
+    function createStar(parent) {
+        const star = document.createElement('div');
+        star.className = 'floating-star';
+        star.innerHTML = '★';
+        star.style.left = parent.offsetLeft + 'px';
+        star.style.top = parent.offsetTop + 'px';
+        document.body.appendChild(star);
+        setTimeout(() => star.remove(), 1000);
+    }
+
+    // Load Highscores from local storage
+    window.onload = () => {
+        const savedScore = localStorage.getItem('quran_high_score') || 0;
+        const savedStars = localStorage.getItem('quran_stars') || 0;
+        document.getElementById('high-score-start').innerText = savedScore;
+        document.getElementById('total-stars-start').innerText = savedStars;
+    };
+</script>
+
+</body>
+</html>
+
+```
