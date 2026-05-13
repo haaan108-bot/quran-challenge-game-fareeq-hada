@@ -1,172 +1,392 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحدي ص 8 - سورة البقرة</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>لعبة رتّب الآيات - بطل القرآن</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --emerald: #065f46; --gold: #d4af37; --soft-gold: #fcf6ba; }
+        :root {
+            --primary-green: #2d5a27;
+            --light-green: #e8f5e9;
+            --gold: #c5a059;
+            --white: #ffffff;
+            --text-color: #333;
+        }
+
         body {
+            margin: 0;
+            padding: 0;
             font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-            color: #333; min-height: 100vh; margin: 0; display: flex; flex-direction: column;
+            background-color: var(--light-green);
+            background-image: url('https://www.transparenttextures.com/patterns/islamic-art.png');
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        .quran-font { font-family: 'Amiri', serif; font-size: 1.5rem; line-height: 2.2; }
-        .word-card {
-            background: white; border: 2px solid var(--soft-gold); border-radius: 12px;
-            padding: 10px 18px; margin: 6px; cursor: pointer; transition: 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: inline-block;
-            font-weight: bold; font-size: 1.1rem; color: var(--emerald);
+
+        #game-container {
+            width: 95%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+            border: 3px solid var(--gold);
+            position: relative;
+            margin: 20px 0;
         }
-        .drop-zone {
-            min-height: 120px; background: rgba(255, 255, 255, 0.1);
-            border: 2px dashed var(--gold); border-radius: 20px;
-            display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
-            padding: 15px; margin-bottom: 20px;
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
         }
-        .hidden { display: none !important; }
-        .progress-bar { height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; width: 100%; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--gold); width: 0%; transition: 0.4s; }
-        #success-modal {
-            background: rgba(0, 0, 0, 0.85); position: fixed; inset: 0; z-index: 100;
-            display: flex; align-items: center; justify-content: center; padding: 20px;
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-family: 'Amiri', serif;
+            color: var(--primary-green);
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        /* Start Screen Styles */
+        .welcome-img {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 12px;
+            margin: 20px 0;
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+        }
+
+        .btn {
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(45, 90, 39, 0.3);
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #1e3d1a;
+            transform: scale(1.05);
+        }
+
+        /* Game Play Styles */
+        #timer {
+            font-size: 1.5rem;
+            color: var(--gold);
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .verse-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .verse-card {
+            background: white;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s;
+            font-family: 'Amiri', serif;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: var(--text-color);
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .verse-card::before {
+            content: '⋮';
+            color: var(--gold);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .verse-card.dragging {
+            opacity: 0.5;
+            background: var(--light-green);
+            transform: scale(0.98);
+        }
+
+        .verse-card.correct {
+            border-color: #4CAF50;
+            background-color: #f1f8e9;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+        }
+
+        /* Result Screen Styles */
+        .result-card {
+            padding: 30px;
+        }
+
+        .result-card h2 {
+            color: var(--primary-green);
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: var(--light-green);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            color: var(--primary-green);
+        }
+
+        .star-icon {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 480px) {
+            h1 { font-size: 1.6rem; }
+            .verse-card { font-size: 1rem; padding: 12px; }
+            .btn { width: 100%; box-sizing: border-box; }
         }
     </style>
 </head>
 <body>
 
-<div id="start-screen" class="flex-grow flex flex-col items-center justify-center p-6 text-center">
-    <h1 class="text-3xl font-bold text-white mb-8">تحدي ص 8 - سورة البقرة</h1>
-    
-    <div class="mb-6 w-full max-w-xs">
-        <input type="text" id="player-name-input" placeholder="اكتب اسمك هنا..." 
-               class="w-full p-4 rounded-xl text-center font-bold outline-none border-4 border-yellow-500">
+<div id="game-container">
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen active">
+        <svg class="welcome-img" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="#c5a059" opacity="0.2"/>
+            <path d="M50 20 L60 40 L80 40 L65 55 L70 75 L50 65 L30 75 L35 55 L20 40 L40 40 Z" fill="#c5a059"/>
+        </svg>
+        <h1>مرحباً يا بطل القرآن</h1>
+        <p>رتّب آيات سورة البقرة من (62) إلى (69)</p>
+        <input type="text" id="player-name" placeholder="ادخل اسمك هنا..." maxlength="20">
+        <br>
+        <button class="btn" onclick="startGame()">ابدأ اللعبة</button>
     </div>
 
-    <button onclick="startGame()" class="bg-yellow-500 text-emerald-900 font-bold py-4 px-12 rounded-full text-2xl shadow-xl active:scale-95 transition">
-        ابدأ التحدي
-    </button>
-    
-    <div id="welcome-back" class="text-white mt-6 hidden">
-        أهلاً بك مجدداً: <span id="saved-name-display" class="text-yellow-400"></span>
-    </div>
-</div>
-
-<div id="game-screen" class="hidden flex-grow flex flex-col p-4 max-w-4xl mx-auto w-full">
-    <div class="flex justify-between items-center text-white mb-6 bg-black/20 p-3 rounded-2xl">
-        <div class="text-sm">اللاعب: <span id="display-name" class="text-yellow-400 font-bold"></span></div>
-        <div class="flex-grow mx-4">
-            <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div id="timer">00:00</div>
+        <div class="verse-list" id="verse-list">
+            <!-- Verses will be loaded here -->
         </div>
-        <div class="text-sm">⭐ <span id="current-score">0</span></div>
     </div>
 
-    <div class="bg-white/95 rounded-3xl p-6 shadow-2xl mb-4">
-        <div id="target-zone" class="drop-zone quran-font"></div>
-        <div id="source-zone" class="flex flex-wrap justify-center gap-1"></div>
-    </div>
-    
-    <button onclick="resetVerse()" class="text-white/70 text-sm underline">إعادة ترتيب الآية</button>
-</div>
-
-<div id="success-modal" class="hidden">
-    <div class="bg-white rounded-3xl p-8 text-center max-w-sm w-full border-4 border-gold">
-        <div class="text-5xl mb-4">✨</div>
-        <h2 class="text-2xl font-bold text-emerald-800 mb-2">أحسنت يا <span id="modal-player-name"></span></h2>
-        <p class="mb-6">نقاطك: <span id="final-score" class="font-bold text-xl">0</span></p>
-        <button id="next-btn" onclick="loadNextVerse()" class="bg-emerald-600 text-white font-bold py-3 px-8 rounded-full w-full mb-2">الآية التالية</button>
-        <button onclick="location.reload()" class="text-gray-500 text-sm">خروج</button>
+    <!-- End Screen -->
+    <div id="end-screen" class="screen">
+        <div class="result-card">
+            <div class="star-icon">🌟</div>
+            <h2 id="final-congrats">أحسنت يا بطل القرآن</h2>
+            <div class="stat-box">
+                <p>البطل: <span id="display-name"></span></p>
+                <p>الوقت المستغرق: <span id="display-time"></span></p>
+            </div>
+            <button class="btn" onclick="restartGame()">إعادة اللعب</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const verses = [
-        "وَإِذْ نَجَّيْنَاكُم مِّنْ آلِ فِرْعَوْنَ يَسُومُونَكُمْ سُوءَ الْعَذَابِ يُذَبِّحُونَ أَبْنَاءَكُمْ وَيَسْتَحْيُونَ نِسَاءَكُمْ ۚ وَفِي ذَٰلِكُم بَلَاءٌ مِّن رَّبِّكُمْ عَظِيمٌ",
-        "وَإِذْ فَرَقْنَا بِكُمُ الْبَحْرَ فَأَنجَيْنَاكُمْ وَأَغْرَقْنَا آلَ فِرْعَوْنَ وَأَنتُمْ تَنظُرُونَ",
-        "وَإِذْ وَاعَدْنَا مُوسَىٰ أَرْبَعِينَ لَيْلَةً ثُمَّ اتَّخَذْتُمُ الْعِجْلَ مِن بَعْدِهِ وَأَنتُمْ ظَالِمُونَ",
-        "ثُمَّ عَفَوْنَا عَنكُم مِّن بَعْدِ ذَٰلِكَ لَعَلَّكُمْ تَشْكُرُونَ",
-        "وَإِذْ آتَيْنَا مُوسَى الْكِتَابَ وَالْفُرْقَانَ لَعَلَّكُمْ تَهْتَدُونَ",
-        "وَإِذْ قَالَ مُوسَىٰ لِقَوْمِهِ يَا قَوْمِ إِنَّكُمْ ظَلَمْتُمْ أَنفُسَكُم بِاتِّخَاذِكُمُ الْعِجْلَ فَتُوبُوا إِلَىٰ بَارِئِكُمْ فَاقْتُلُوا أَنفُسَكُمْ ذَٰلِكُمْ خَيْرٌ لَّكُمْ عِندَ بَارِئِكُمْ فَتَابَ عَلَيْكُمْ ۚ إِنَّهُ هُوَ التَّوَّابُ الرَّحِيمُ",
-        "وَإِذْ قُلْتُمْ يَا مُوسَىٰ لَن نُّؤْمِنَ لَكَ حَتَّىٰ نَرَى اللَّهَ جَهْرَةً فَأَخَذَتْكُمُ الصَّاعِقَةُ وَأَنتُمْ تَنظُرُونَ",
-        "ثُمَّ بَعَثْنَاكُم مِّن بَعْدِ مَوْتِكُمْ لَعَلَّكُمْ تَشْكُرُونَ",
-        "وَظَلَّلْنَا عَلَيْكُمُ الْغَمَامَ وَأَنزَلْنَا عَلَيْكُمُ الْمَنَّ وَالسَّلْوَىٰ ۖ كُلُوا مِن طَيِّبَاتِ مَا رَزَقْنَاكُمْ ۖ وَمَا ظَلَمُونَا وَلَٰكِن كَانُوا أَنفُسَهُمْ يَظْلِمُونَ"
+    const versesData = [
+        { id: 62, text: "إِنَّ الَّذِينَ آمَنُوا وَالَّذِينَ هَادُوا وَالنَّصَارَىٰ وَالصَّابِئِينَ مَنْ آمَنَ بِاللَّهِ وَالْيَوْمِ الْآخِرِ وَعَمِلَ صَالِحًا فَلَهُمْ أَجْرُهُمْ عِندَ رَبِّهِمْ وَلَا خَوْفٌ عَلَيْهِمْ وَلَا هُمْ يَحْزَنُونَ" },
+        { id: 63, text: "وَإِذْ أَخَذْنَا مِيثَاقَكُمْ وَرَفَعْنَا فَوْقَكُمُ الطُّورَ خُذُوا مَا آتَيْنَاكُم بِقُوَّةٍ وَاذْكُرُوا مَا فِيهِ لَعَلَّكُمْ تَتَّقُونَ" },
+        { id: 64, text: "ثُمَّ تَوَلَّيْتُم مِّن بَعْدِ ذَٰلِكَ ۖ فَلَوْلَا فَضْلُ اللَّهِ عَلَيْكُمْ وَرَحْمَتُهُ لَكُنتُم مِّنَ الْخَاسِرِينَ" },
+        { id: 65, text: "وَلَقَدْ عَلِمْتُمُ الَّذِينَ اعْتَدَوْا مِنكُمْ فِي السَّبْتِ فَقُلْنَا لَهُمْ كُونُوا قِرَدَةً خَاسِئِينَ" },
+        { id: 66, text: "فَجَعَلْنَاهَا نَكَالًا لِّمَا بَيْنَ يَدَيْهَا وَمَا خَلْفَهَا وَمَوْعِظَةً لِّلْمُتَّقِينَ" },
+        { id: 67, text: "وَإِذْ قَالَ مُوسَىٰ لِقَوْمِهِ إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تَذْبَحُوا بَقَرَةً ۖ قَالُوا أَتَتَّخِذُنَا هُزُوًا ۖ قَالَ أَعُوذُ بِاللَّهِ أَنْ أَكُونَ مِنَ الْجَاهِلِينَ" },
+        { id: 68, text: "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لَّنَا مَا هِيَ ۚ قَالَ إِنَّهُ يَقُولُ إِنَّهَا بَقَرَةٌ لَّا فَارِضٌ وَلَا بِكْرٌ عَوَانٌ بَيْنَ ذَٰلِكَ ۖ فَافْعَلُوا مَا تُؤْمَرُونَ" },
+        { id: 69, text: "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لَّنَا مَا لَوْنُهَا ۚ قَالَ إِنَّهُ يَقُولُ إِنَّهَا بَقَرَةٌ صَفْرَاءُ فَاقِعٌ لَّوْنُهَا تَسُرُّ النَّاظِرِينَ" }
     ];
 
-    let currentVerseIndex = 0, score = 0, placedWords = [], currentVerseWords = [];
+    let timerInterval;
+    let seconds = 0;
+    let playerName = "";
 
-    window.onload = () => {
-        const name = localStorage.getItem('quran_name');
-        if (name) {
-            document.getElementById('player-name-input').value = name;
-            document.getElementById('welcome-back').classList.remove('hidden');
-            document.getElementById('saved-name-display').innerText = name;
-        }
-    };
-
-    function startGame() {
-        const name = document.getElementById('player-name-input').value.trim();
-        if (!name) return alert("من فضلك اكتب اسمك!");
-        localStorage.setItem('quran_name', name);
-        document.getElementById('display-name').innerText = name;
-        document.getElementById('modal-player-name').innerText = name;
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('game-screen').classList.remove('hidden');
-        loadVerse(0);
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
     }
 
-    function loadVerse(index) {
-        if (index >= verses.length) {
-            document.getElementById('modal-msg').innerText = "تم ختم الصفحة!";
-            document.getElementById('next-btn').classList.add('hidden');
+    function startGame() {
+        const nameInput = document.getElementById('player-name').value;
+        if (!nameInput.trim()) {
+            alert("من فضلك ادخل اسمك لتبدأ اللعبة");
             return;
         }
-        currentVerseWords = verses[index].split(' ').filter(w => w.trim());
-        placedWords = [];
-        document.getElementById('progress-fill').style.width = (index / verses.length * 100) + '%';
-        const jumbled = [...currentVerseWords].sort(() => Math.random() - 0.5);
-        
-        const source = document.getElementById('source-zone');
-        const target = document.getElementById('target-zone');
-        source.innerHTML = ''; target.innerHTML = '';
+        playerName = nameInput;
+        showScreen('game-screen');
+        setupGame();
+        startTimer();
+    }
 
-        jumbled.forEach(word => {
+    function setupGame() {
+        const listContainer = document.getElementById('verse-list');
+        listContainer.innerHTML = '';
+        
+        // Shuffle verses
+        const shuffled = [...versesData].sort(() => Math.random() - 0.5);
+        
+        shuffled.forEach(verse => {
             const card = document.createElement('div');
-            card.className = 'word-card';
-            card.innerText = word;
-            card.onclick = () => {
-                if (word === currentVerseWords[placedWords.length]) {
-                    placedWords.push(word);
-                    card.classList.add('hidden');
-                    const tCard = document.createElement('div');
-                    tCard.className = 'word-card';
-                    tCard.innerText = word;
-                    target.appendChild(tCard);
-                    score += 10;
-                    document.getElementById('current-score').innerText = score;
-                    if (placedWords.length === currentVerseWords.length) {
-                        setTimeout(() => {
-                            document.getElementById('final-score').innerText = score;
-                            document.getElementById('success-modal').classList.remove('hidden');
-                        }, 500);
-                    }
-                } else {
-                    card.style.borderColor = 'red';
-                    setTimeout(() => card.style.borderColor = '#fcf6ba', 500);
-                }
-            };
-            source.appendChild(card);
+            card.className = 'verse-card';
+            card.draggable = true;
+            card.dataset.id = verse.id;
+            card.textContent = verse.text;
+            
+            card.addEventListener('dragstart', () => card.classList.add('dragging'));
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+                checkOrder();
+            });
+
+            // Touch events for mobile
+            card.addEventListener('touchstart', handleTouchStart, {passive: false});
+            card.addEventListener('touchmove', handleTouchMove, {passive: false});
+            card.addEventListener('touchend', handleTouchEnd);
+            
+            listContainer.appendChild(card);
+        });
+
+        // Initialize drag and drop container
+        listContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(listContainer, e.clientY);
+            const dragging = document.querySelector('.dragging');
+            if (afterElement == null) {
+                listContainer.appendChild(dragging);
+            } else {
+                listContainer.insertBefore(dragging, afterElement);
+            }
         });
     }
 
-    function loadNextVerse() {
-        document.getElementById('success-modal').classList.add('hidden');
-        currentVerseIndex++;
-        loadVerse(currentVerseIndex);
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.verse-card:not(.dragging)')];
+        
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
-    function resetVerse() { loadVerse(currentVerseIndex); }
+    // Touch Support Variables
+    let touchTarget = null;
+
+    function handleTouchStart(e) {
+        touchTarget = e.currentTarget;
+        touchTarget.classList.add('dragging');
+    }
+
+    function handleTouchMove(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const container = document.getElementById('verse-list');
+        const afterElement = getDragAfterElement(container, touch.clientY);
+        if (afterElement == null) {
+            container.appendChild(touchTarget);
+        } else {
+            container.insertBefore(touchTarget, afterElement);
+        }
+    }
+
+    function handleTouchEnd() {
+        if(touchTarget) {
+            touchTarget.classList.remove('dragging');
+            touchTarget = null;
+            checkOrder();
+        }
+    }
+
+    function checkOrder() {
+        const cards = [...document.querySelectorAll('.verse-card')];
+        let allCorrect = true;
+
+        cards.forEach((card, index) => {
+            const expectedId = versesData[index].id;
+            if (parseInt(card.dataset.id) === expectedId) {
+                card.classList.add('correct');
+            } else {
+                card.classList.remove('correct');
+                allCorrect = false;
+            }
+        });
+
+        if (allCorrect) {
+            endGame();
+        }
+    }
+
+    function startTimer() {
+        seconds = 0;
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            seconds++;
+            const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const secs = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${mins}:${secs}`;
+        }, 1000);
+    }
+
+    function endGame() {
+        clearInterval(timerInterval);
+        document.getElementById('display-name').textContent = playerName;
+        document.getElementById('display-time').textContent = document.getElementById('timer').textContent;
+        
+        setTimeout(() => {
+            showScreen('end-screen');
+        }, 500);
+    }
+
+    function restartGame() {
+        showScreen('start-screen');
+        document.getElementById('player-name').value = "";
+    }
 </script>
+
 </body>
 </html>
+
+```
